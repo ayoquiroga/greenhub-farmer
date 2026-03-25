@@ -42,7 +42,6 @@ htmlcov/
 # --- GCP Credentials (NUNCA subir a git) ---
 *.json
 !pyproject.toml
-# Si tu archivo de credenciales tiene otro nombre, agrégalo aquí:
 gcs.json
 service-account.json
 credentials.json
