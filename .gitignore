@@ -1,0 +1,83 @@
+# =========================================================
+# GreenHubFarmer — .gitignore
+# =========================================================
+
+# --- Python ---
+__pycache__/
+*.py[codz]
+*$py.class
+*.so
+.Python
+build/
+dist/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# --- Virtual environments ---
+.venv/
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# --- uv ---
+# uv.lock se incluye en git para reproducibilidad (no ignorar)
+
+# --- Jupyter ---
+.ipynb_checkpoints/
+*.ipynb_checkpoints
+
+# --- Testing ---
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+
+# --- Environment variables ---
+.env
+.envrc
+
+# --- GCP Credentials (NUNCA subir a git) ---
+*.json
+!pyproject.toml
+# Si tu archivo de credenciales tiene otro nombre, agrégalo aquí:
+gcs.json
+service-account.json
+credentials.json
+
+# --- Terraform ---
+terraform/.terraform/
+terraform/*.tfstate
+terraform/*.tfstate.backup
+terraform/.terraform.lock.hcl
+terraform/terraform.tfvars
+
+# --- Docker ---
+docker/postgres/data/
+docker/pgadmin/data/
+
+# --- Datos locales (archivos grandes) ---
+data/raw/
+data/processed/
+data/output/
+*.parquet
+*.csv
+*.zip
+
+# --- Airflow ---
+logs/
+airflow.db
+airflow.cfg
+
+# --- IDE ---
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# --- Sistema operativo ---
+.DS_Store
+Thumbs.db
+desktop.ini

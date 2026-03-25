@@ -1,0 +1,41 @@
+[project]
+name = "greenhub-farmer"
+version = "0.1.0"
+description = "End-to-end data engineering pipeline for GreenHub Farmer dataset"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    # Data manipulation y exploración
+    "pandas>=3.0.0",
+    "pyarrow>=23.0.0",
+    "duckdb>=1.2.0",
+
+    # PostgreSQL
+    "psycopg2-binary>=2.9.11",
+    "sqlalchemy>=2.0.46",
+
+    # Google Cloud
+    "google-cloud-storage>=2.19.0",
+    "google-cloud-bigquery>=3.29.0",
+    "google-cloud-bigquery-storage>=2.27.0",
+
+    # Dataset download
+    "kaggle>=1.7.4",
+
+    # Utilidades
+    "python-dotenv>=1.0.0",
+    "tqdm>=4.67.1",
+    "click>=8.3.1",
+]
+
+[dependency-groups]
+dev = [
+    "jupyter>=1.1.1",
+    "ipykernel>=6.29.0",
+]
+
+[tool.uv]
+dev-dependencies = [
+    "jupyter>=1.1.1",
+    "ipykernel>=6.29.0",
+]
