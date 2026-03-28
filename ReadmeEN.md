@@ -143,8 +143,6 @@ GreenHubFarmer/
 
 ## Step 1 — Local Environment Setup
 
-### ✅ Completed
-
 The working environment was configured with Python 3.12 and the `uv` package manager.
 
 ### Files created
@@ -184,8 +182,6 @@ uv sync --dev        # installs all dependencies (including dev)
 ---
 
 ## Step 2 — GitHub Sync
-
-### ✅ Completed
 
 The Git repository was initialized and pushed to GitHub.
 
@@ -230,8 +226,6 @@ terraform.tfvars
 ---
 
 ## Step 3 — Dataset Exploration
-
-### ✅ Completed
 
 **Notebook:** [notebooks/01_explore_dataset.ipynb](notebooks/01_explore_dataset.ipynb)
 
@@ -287,8 +281,6 @@ network_type     → string   (WiFi, Mobile, None)
 ---
 
 ## Step 4 — Docker Infrastructure
-
-### ✅ Completed
 
 ### Files created
 
@@ -383,8 +375,6 @@ docker compose up -d
 ---
 
 ## Step 5 — Airflow DAG: Local Pipeline
-
-### ✅ Completed
 
 ### File created
 
@@ -491,8 +481,6 @@ $ docker exec greenhub-airflow bash -c \
 
 ## Step 6 — Airflow DAG: Cloud Pipeline (GCP)
 
-### ✅ Completed
-
 **File:** `dags/gcp_pipeline_dag.py`
 
 ### Technical decision: BigLake + BigQuery CTAS instead of Dataflow
@@ -525,8 +513,6 @@ upload_to_gcs  ──►  create_biglake_table  ──►  load_to_bigquery
 ---
 
 ## Step 7 — Cloud Infrastructure with Terraform
-
-### ✅ Completed
 
 Resources created with Terraform in GCP project `kestra-sandbox-2026`:
 
@@ -566,8 +552,6 @@ Outputs:
 ---
 
 ## Step 8 — Data Warehouse: SQL Schema
-
-### ✅ Completed
 
 ### PostgreSQL (local)
 
@@ -622,16 +606,12 @@ GCS (Parquet)
 
 ## Step 9 — Transformations
 
-### ✅ Completed
-
 - **Local:** SparkSQL inside the Airflow DAG (`local[*]` mode)
 - **Cloud:** BigQuery CTAS orchestrated by Airflow (GCS BigLake → native BigQuery)
 
 ---
 
 ## Step 10 — Dashboard
-
-### ✅ Completed
 
 **Tool:** Looker Studio
 
