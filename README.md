@@ -82,6 +82,7 @@ Dataset Kaggle (.parquet ~3GB)
 | Procesamiento local | Apache Spark (SparkSQL) |
 | Base de datos local | PostgreSQL 16 |
 | UI de base de datos | pgAdmin 4 |
+| Exploración de datos | Jupyter Notebooks + DuckDB |
 | Data Lake (cloud) | Google Cloud Storage (BigLake) |
 | Data Warehouse (cloud) | BigQuery |
 | Procesamiento cloud | BigQuery CTAS (reemplaza Dataflow — ver decisión técnica) |
@@ -729,12 +730,12 @@ docker compose up -d
 | Criterio | Estado | Descripción |
 |---|---|---|
 | Descripción del problema | ✅ | Dataset, objetivo y modelo de datos documentados |
-| Cloud + IaC (Terraform) | 🔄 En progreso | GCP con Terraform (BigQuery + GCS) |
-| Ingesta por lotes (DAG) | 🔄 En progreso | Airflow 2.9 + Docker Compose listos, DAG pendiente |
-| Data Warehouse (particionado) | 🔄 En progreso | `PARTITION BY timestamp`, `CLUSTER BY battery_state` |
-| Transformaciones | ⏳ Pendiente | SparkSQL (local) y BigQuery CTAS via BigLake (cloud) |
+| Cloud + IaC (Terraform) | ✅ | GCP con Terraform (BigQuery + GCS) |
+| Ingesta por lotes (DAG) | ✅ | Airflow 2.9 + Docker Compose, DAGs completados |
+| Data Warehouse (particionado) | ✅ | `PARTITION BY timestamp`, `CLUSTER BY battery_state` |
+| Transformaciones | ✅ | SparkSQL (local) y BigQuery CTAS via BigLake (cloud) |
 | Dashboard (2 tiles) | ✅ | [Looker Studio — 2 visualizaciones](https://lookerstudio.google.com/reporting/2bba7aae-c1ed-4d00-be9f-eea7044b93e8) |
-| Reproducibilidad | 🔄 En progreso | `docker compose up`, Terraform, instrucciones en README |
+| Reproducibilidad | ✅ | `docker compose up`, Terraform, instrucciones en README |
 
 ---
 
