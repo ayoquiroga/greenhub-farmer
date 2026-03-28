@@ -1,0 +1,22 @@
+# Dependencias adicionales instaladas en el contenedor de Airflow
+# (además de las que ya incluye apache/airflow:2.9.0)
+
+# Procesamiento distribuido
+pyspark==3.5.0
+
+# Descarga de datasets desde Kaggle
+kaggle==1.6.17
+
+# Formatos de datos
+# pandas 3.x requiere SQLAlchemy 2.x (incompatible con Airflow 2.9 que usa SQLAlchemy 1.4.x)
+# apache-airflow-providers-google requiere pandas<2.2
+# -> usar pandas 2.1.4 que satisface ambas restricciones
+pandas==2.1.4
+pyarrow>=23.0.0
+
+# Conexión a PostgreSQL
+psycopg2-binary>=2.9.11
+sqlalchemy==1.4.46
+
+# GCP — operadores de Airflow para BigQuery y Cloud Storage
+apache-airflow-providers-google

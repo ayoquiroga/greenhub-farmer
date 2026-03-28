@@ -1,0 +1,144 @@
+# =========================================================
+# GreenHubFarmer — Docker Compose
+#
+# Contenedores:
+#   postgres          → base de datos del proyecto  (5432)
+#   pgadmin           → UI web para PostgreSQL       (8085)
+#   airflow-metadata  → DB interna de Airflow        (interno)
+#   airflow-init      → inicialización de Airflow    (una sola vez)
+#   airflow           → webserver + scheduler        (8080)
+# =========================================================
+
+version: '3.8'
+
+# ── Configuración común para todos los servicios Airflow ─
+x-airflow-common:
+  &airflow-common
+  build:
+    context: .
+    dockerfile: docker/airflow/Dockerfile
+  environment:
+    &airflow-common-env
+    AIRFLOW__CORE__EXECUTOR: LocalExecutor
+    AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@airflow-metadata:5432/airflow
+    AIRFLOW__CORE__FERNET_KEY: ${AIRFLOW__CORE__FERNET_KEY:-}
+    AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
+    AIRFLOW__WEBSERVER__EXPOSE_CONFIG: 'true'
+    # Kaggle API — leídas desde .env
+    KAGGLE_USERNAME: ${KAGGLE_USERNAME}
+    KAGGLE_KEY: ${KAGGLE_KEY}
+    # PostgreSQL del proyecto — para que el DAG pueda conectarse
+    POSTGRES_USER: ${POSTGRES_USER:-postgres}
+    POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+    POSTGRES_DB: ${POSTGRES_DB:-greenhub}
+    # GCP — credenciales y recursos
+    GOOGLE_APPLICATION_CREDENTIALS: /opt/airflow/credentials/gcp-credentials.json
+    AIRFLOW_CONN_GOOGLE_CLOUD_DEFAULT: "google-cloud-platform://?key_path=%2Fopt%2Fairflow%2Fcredentials%2Fgcp-credentials.json&project=kestra-sandbox-2026"
+    GCS_BUCKET: ${GCS_BUCKET:-greenhub-raw-kestra-2026}
+    BQ_DATASET: ${BQ_DATASET:-greenhub}
+    GCP_PROJECT_ID: ${GCP_PROJECT_ID:-kestra-sandbox-2026}
+  volumes:
+    - ./dags:/opt/airflow/dags
+    - ./data:/opt/airflow/data
+    - ./scripts:/opt/airflow/scripts
+    - ./logs:/opt/airflow/logs
+    # GCP: si GCP_CREDENTIALS_FILE no está definido en .env, monta /dev/null
+    # (el contenedor arranca igual; solo el DAG cloud fallará si no hay credenciales)
+    - ${GCP_CREDENTIALS_FILE:-/dev/null}:/opt/airflow/credentials/gcp-credentials.json:ro
+  user: "${AIRFLOW_UID:-50000}:0"
+  depends_on:
+    &airflow-common-depends-on
+    airflow-metadata:
+      condition: service_healthy
+
+# ═══════════════════════════════════════════════════════════
+services:
+
+  # ── Base de datos del proyecto ─────────────────────────
+  postgres:
+    image: postgres:16
+    container_name: greenhub-postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-greenhub}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-d", "${POSTGRES_DB:-greenhub}", "-U", "${POSTGRES_USER:-postgres}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    restart: unless-stopped
+
+  # ── UI web para PostgreSQL ─────────────────────────────
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: greenhub-pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-admin@admin.com}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-root}
+    ports:
+      - "8085:80"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # ── Base de datos interna de Airflow ───────────────────
+  airflow-metadata:
+    image: postgres:16
+    container_name: greenhub-airflow-metadata
+    environment:
+      POSTGRES_USER: airflow
+      POSTGRES_PASSWORD: airflow
+      POSTGRES_DB: airflow
+    volumes:
+      - airflow_metadata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-d", "airflow", "-U", "airflow"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    restart: unless-stopped
+
+  # ── Inicialización de Airflow (corre una sola vez) ─────
+  airflow-init:
+    <<: *airflow-common
+    container_name: greenhub-airflow-init
+    entrypoint: /bin/bash
+    command:
+      - -c
+      - |
+        airflow db init
+        airflow users create \
+          --username airflow \
+          --firstname Admin \
+          --lastname User \
+          --role Admin \
+          --email admin@airflow.com \
+          --password airflow
+        echo "✓ Airflow inicializado correctamente"
+    restart: on-failure
+
+  # ── Airflow webserver + scheduler ─────────────────────
+  airflow:
+    <<: *airflow-common
+    container_name: greenhub-airflow
+    command: bash -c "airflow webserver & airflow scheduler"
+    ports:
+      - "8080:8080"
+    depends_on:
+      <<: *airflow-common-depends-on
+      airflow-init:
+        condition: service_completed_successfully
+    restart: unless-stopped
+
+# ═══════════════════════════════════════════════════════════
+volumes:
+  postgres_data:       # datos de la base de datos del proyecto
+  airflow_metadata:    # estado interno de Airflow (DAGs, ejecuciones)
